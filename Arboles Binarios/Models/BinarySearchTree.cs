@@ -1,27 +1,32 @@
-using System;
+﻿using System;
 
 namespace Estructuras_de_Datos_Arboles
 {
+
     public class BinarySearchTree
     {
         public Node? Head { get; private set; }
+
         public BinarySearchTree()
         {
             Head = null;
         }
-        /// <param name="id">Valor entero a insertar.</param>
-        /// <see cref="OperationResult"/> con el caso ocurrido y los ids involucrados.
+
+
         public OperationResult Add(int id)
         {
             Node newNode = new Node(id);
+
+
             if (Head == null)
             {
                 Head = newNode;
                 return OperationResult.Ok(
                     OperationCase.AddedAsRoot,
-                    $"[Caso 1: Árbol Vacío] Se asignó Head = newNode ({id})",
+                    $"[Caso 1: Arbol Vacio] Se asigno Head = newNode ({id})",
                     affectedId: id);
             }
+
             Node current = Head;
 
             while (true)
@@ -33,7 +38,7 @@ namespace Estructuras_de_Datos_Arboles
                         current.Left = newNode;
                         return OperationResult.Ok(
                             OperationCase.AddedLeft,
-                            $"[Caso 2: Menor que {current.Id}] Se insertó {id} en current.Left",
+                            $"[Caso 2: Menor que {current.Id}] Se inserto {id} en current.Left",
                             affectedId: id);
                     }
                     current = current.Left;
@@ -45,7 +50,7 @@ namespace Estructuras_de_Datos_Arboles
                         current.Right = newNode;
                         return OperationResult.Ok(
                             OperationCase.AddedRight,
-                            $"[Caso 3: Mayor que {current.Id}] Se insertó {id} en current.Right",
+                            $"[Caso 3: Mayor que {current.Id}] Se inserto {id} en current.Right",
                             affectedId: id);
                     }
                     current = current.Right;
@@ -54,21 +59,21 @@ namespace Estructuras_de_Datos_Arboles
                 {
                     return OperationResult.Fail(
                         OperationCase.DuplicateKey,
-                        $"[Caso 4: Clave Duplicada] El Id {id} ya existe en el árbol.",
+                        $"[Caso 4: Clave Duplicada] El Id {id} ya existe en el arbol.",
                         affectedId: id);
                 }
             }
         }
-        /// Busca el nodo con el identificador <paramref name="id"/> en el árbol.
-        /// <param name="id">Valor a buscar.</param>
-        /// <see cref="OperationResult"/> indicando si fue encontrado y en qué caso.
+
+
         public OperationResult Search(int id)
         {
+
             if (Head == null)
             {
                 return OperationResult.Fail(
                     OperationCase.SearchInEmpty,
-                    "[Caso 1: Búsqueda] Árbol vacío (Head == null).",
+                    "[Caso 1: Busqueda] Arbol vacio (Head == null).",
                     affectedId: id);
             }
 
@@ -80,42 +85,51 @@ namespace Estructuras_de_Datos_Arboles
                 {
                     return OperationResult.Ok(
                         OperationCase.Found,
-                        $"[Caso 2: Búsqueda] ¡Encontrado! current.Id == {id}",
+                        $"[Caso 2: Busqueda] Encontrado! current.Id == {id}",
                         affectedId: id);
                 }
+
                 if (id < current.Id)
                     current = current.Left;
                 else
                     current = current.Right;
             }
+
+            // CASO 5: Se llego a null, no existe
             return OperationResult.Fail(
                 OperationCase.NotFound,
-                $"[Caso 5: Búsqueda] El Id {id} no existe en el árbol.",
+                $"[Caso 5: Busqueda] El Id {id} no existe en el arbol.",
                 affectedId: id);
         }
-        /// Elimina el nodo con el identificador <paramref name="id"/> del árbol.
-        /// <param name="id">Valor a eliminar.</param>
-        /// <see cref="OperationResult"/> con el caso de eliminación ejecutado.
+
+
         public OperationResult Remove(int id)
         {
+
             OperationResult searchResult = Search(id);
             if (!searchResult.Success)
             {
                 return OperationResult.Fail(
                     OperationCase.RemoveNotFound,
-                    $"No se puede eliminar: El Id {id} no existe en el árbol.",
+                    $"No se puede eliminar: El Id {id} no existe.",
                     affectedId: id);
             }
-            string caseMessage = string.Empty;
-            OperationCase caseType = OperationCase.RemovedLeaf;
+
+
+            string        caseMessage = string.Empty;
+            OperationCase caseType    = OperationCase.RemovedLeaf;
 
             Head = RemoveRecursive(Head, id, ref caseMessage, ref caseType);
 
             return OperationResult.Ok(caseType, caseMessage, affectedId: id);
         }
+
+
         private Node? RemoveRecursive(Node? current, int id, ref string caseMessage, ref OperationCase caseType)
         {
             if (current == null) return null;
+
+
             if (id < current.Id)
             {
                 current.Left = RemoveRecursive(current.Left, id, ref caseMessage, ref caseType);
@@ -129,64 +143,71 @@ namespace Estructuras_de_Datos_Arboles
                 if (current.Left == null && current.Right == null)
                 {
                     caseType    = OperationCase.RemovedLeaf;
-                    caseMessage = $"[Caso 1: Eliminar Hoja] Se eliminó el nodo hoja ({id})";
-                    return null; 
+                    caseMessage = $"[Caso 1: Eliminar Hoja] Se elimino el nodo hoja ({id})";
+                    return null;
                 }
+
                 if (current.Left == null)
                 {
                     caseType    = OperationCase.RemovedOneChild;
-                    caseMessage = $"[Caso 2: Eliminar 1 Hijo] El nodo ({id}) fue reemplazado por su hijo derecho ({current.Right!.Id})";
+                    caseMessage = $"[Caso 2: Eliminar con 1 Hijo] El nodo ({id}) fue reemplazado por su hijo derecho ({current.Right!.Id})";
                     return current.Right;
                 }
                 if (current.Right == null)
                 {
                     caseType    = OperationCase.RemovedOneChild;
-                    caseMessage = $"[Caso 2: Eliminar 1 Hijo] El nodo ({id}) fue reemplazado por su hijo izquierdo ({current.Left!.Id})";
+                    caseMessage = $"[Caso 2: Eliminar con 1 Hijo] El nodo ({id}) fue reemplazado por su hijo izquierdo ({current.Left!.Id})";
                     return current.Left;
                 }
+
                 Node sucesor = current.Right!;
                 while (sucesor.Left != null)
                     sucesor = sucesor.Left;
 
-                caseType    = OperationCase.RemovedTwoChildren;
-                caseMessage = $"[Caso 3: Eliminar 2 Hijos] El nodo ({id}) fue reemplazado por su sucesor inorden ({sucesor.Id})";
+                string        mensajeCaso3 = $"[Caso 3: Eliminar con 2 Hijos] El nodo ({id}) fue reemplazado por su sucesor inorden ({sucesor.Id})";
+                OperationCase tipoCaso3    = OperationCase.RemovedTwoChildren;
+
                 current.Id    = sucesor.Id;
                 current.Right = RemoveRecursive(current.Right, sucesor.Id, ref caseMessage, ref caseType);
-                caseType    = OperationCase.RemovedTwoChildren;
-                caseMessage = $"[Caso 3: Eliminar 2 Hijos] El nodo ({id}) fue reemplazado por su sucesor inorden ({sucesor.Id})";
+
+                caseType    = tipoCaso3;
+                caseMessage = mensajeCaso3;
             }
 
             return current;
         }
-        /// <returns><see cref="OperationResult"/> indicando que el árbol fue vaciado.</returns>
+        // Vacia el arbol por completo
         public OperationResult Clear()
         {
             Head = null;
-            return OperationResult.Ok(
-                OperationCase.Cleared,
-                "El árbol fue vaciado correctamente.");
+            return OperationResult.Ok(OperationCase.Cleared, "El arbol fue vaciado correctamente.");
         }
-        public string GetInOrder()    => InOrderRecursive(Head).Trim();
-        public string GetPreOrder()   => PreOrderRecursive(Head).Trim();
-        public string GetPostOrder()  => PostOrderRecursive(Head).Trim();
+        public string GetInOrder()   => InOrderRecursive(Head).Trim();
+        public string GetPreOrder()  => PreOrderRecursive(Head).Trim();
+        public string GetPostOrder() => PostOrderRecursive(Head).Trim();
 
+        // InOrden: Izquierda -> Raiz -> Derecha (produce valores ascendentes en un BST)
         private string InOrderRecursive(Node? current)
         {
             if (current == null) return string.Empty;
             return $"{InOrderRecursive(current.Left)}{current.Id} {InOrderRecursive(current.Right)}";
         }
 
+        // PreOrden: Raiz -> Izquierda -> Derecha
         private string PreOrderRecursive(Node? current)
         {
             if (current == null) return string.Empty;
             return $"{current.Id} {PreOrderRecursive(current.Left)}{PreOrderRecursive(current.Right)}";
         }
 
+        // PostOrden: Izquierda -> Derecha -> Raiz
         private string PostOrderRecursive(Node? current)
         {
             if (current == null) return string.Empty;
             return $"{PostOrderRecursive(current.Left)}{PostOrderRecursive(current.Right)}{current.Id} ";
         }
+
+        // Cuenta el total de nodos del arbol
         public int Count() => CountRecursive(Head);
 
         private int CountRecursive(Node? current)
@@ -194,6 +215,8 @@ namespace Estructuras_de_Datos_Arboles
             if (current == null) return 0;
             return 1 + CountRecursive(current.Left) + CountRecursive(current.Right);
         }
+
+        // Devuelve la altura del arbol (numero de niveles)
         public int GetHeight() => HeightRecursive(Head);
 
         private int HeightRecursive(Node? current)
